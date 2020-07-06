@@ -27,19 +27,33 @@
             <Setter Property="Stroke" Value="Black"/>
         </Style>
     </UserControl.Resources>
-    <Canvas Width="0" Height="0" >
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Canvas Width="0" Height="0" >
+ 
+            <Line X1="{Binding Points[0].X}" Y1="{Binding Points[0].Y}" X2="{Binding Points[1].X}" Y2="{Binding Points[1].Y}"/>
+            <Line X1="{Binding Points[1].X}" Y1="{Binding Points[1].Y}" X2="{Binding Points[2].X}" Y2="{Binding Points[2].Y}"/>
+            <Line X1="{Binding Points[2].X}" Y1="{Binding Points[2].Y}" X2="{Binding Points[0].X}" Y2="{Binding Points[0].Y}"/>
 
-        <Line X1="{Binding Points[0].X}" Y1="{Binding Points[0].Y}" X2="{Binding Points[1].X}" Y2="{Binding Points[1].Y}"/>
-        <Line X1="{Binding Points[1].X}" Y1="{Binding Points[1].Y}" X2="{Binding Points[2].X}" Y2="{Binding Points[2].Y}"/>
-        <Line X1="{Binding Points[2].X}" Y1="{Binding Points[2].Y}" X2="{Binding Points[0].X}" Y2="{Binding Points[0].Y}"/>
-
-        <Ellipse Canvas.Left="{Binding Points[0].X}" Canvas.Top="{Binding Points[0].Y}"/>
-        <Ellipse Canvas.Left="{Binding Points[1].X}" Canvas.Top="{Binding Points[1].Y}"/>
-        <Ellipse Canvas.Left="{Binding Points[2].X}" Canvas.Top="{Binding Points[2].Y}"/>
+            <Ellipse Canvas.Left="{Binding Points[0].X}" Canvas.Top="{Binding Points[0].Y}"/>
+            <Ellipse Canvas.Left="{Binding Points[1].X}" Canvas.Top="{Binding Points[1].Y}"/>
+            <Ellipse Canvas.Left="{Binding Points[2].X}" Canvas.Top="{Binding Points[2].Y}"/>
 
        
-        <Canvas.LayoutTransform>
-            <ScaleTransform ScaleY="-1" ScaleX="1"></ScaleTransform>
-        </Canvas.LayoutTransform>
-    </Canvas>
+            <Canvas.LayoutTransform>
+                <ScaleTransform ScaleY="-1" ScaleX="1"></ScaleTransform>
+            </Canvas.LayoutTransform>
+        </Canvas>
+        <StackPanel Grid.Column="1">
+            <TextBlock Text="{Binding Points[0].Degree, StringFormat=∠A: {0:F2}°}"></TextBlock>
+            <TextBlock Text="{Binding Points[1].Degree, StringFormat=∠B: {0:F2}°}"></TextBlock>
+            <TextBlock Text="{Binding Points[2].Degree, StringFormat=∠C: {0:F2}°}"></TextBlock>
+            <TextBlock Text="{Binding Points[0].Length, StringFormat=a: {0:F2}}"></TextBlock>
+            <TextBlock Text="{Binding Points[1].Length, StringFormat=b: {0:F2}}"></TextBlock>
+            <TextBlock Text="{Binding Points[2].Length, StringFormat=c: {0:F2}}"></TextBlock>
+        </StackPanel>
+    </Grid>
 </UserControl>

@@ -14,8 +14,8 @@ namespace Trigonometry.ViewModels
         public MainViewModel()
         {
             TriangleVm[0].Set(10,10);
-            TriangleVm[1].Set(200,10);
-            TriangleVm[2].Set(100,160);
+            TriangleVm[1].Set(210,10);
+            TriangleVm[2].Set(110,160);
         }
 
 
