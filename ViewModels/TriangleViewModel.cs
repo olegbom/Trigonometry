@@ -20,16 +20,6 @@ namespace Trigonometry.ViewModels
 
         public TrianglePointViewModel this[int i] => Points[i % 3];
 
-
-        public double AngleA { get; private set; }
-        public double AngleB { get; private set; }
-        public double AngleC { get; private set; }
-
-        public double DegreeA => AngleA / 180 * Math.PI;
-        public double DegreeB => AngleB / 180 * Math.PI;
-        public double DegreeC => AngleC / 180 * Math.PI;
-        
-
         public double Semiperimeter { get; private set; }
 
         public void SemiperimeterUpdate()
