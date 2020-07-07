@@ -37,9 +37,6 @@ namespace Trigonometry.ViewModels
             UpdateAngle();
             Next.UpdateAngle();
             Prev.UpdateAngle();
-            UpdateLabelPos();
-            Next.UpdateLabelPos();
-            Prev.UpdateLabelPos();
             Triangle.InvokePointsChanged();
         }
         
@@ -47,19 +44,8 @@ namespace Trigonometry.ViewModels
         public TrianglePointViewModel Next { get; set; }
         public TrianglePointViewModel Prev { get; set; }
 
-        public Vector2 LabelPos { get; private set; }
-
-        public void UpdateLabelPos()
-        {
-            Vector2 mid = (Next.P + Prev.P) / 2;
-            Vector2 dv = Vector2.Normalize(P - mid);
-            LabelPos = P + dv * 15;
-        }
-
-        public double LabelX => LabelPos.X;
-        public double LabelY => LabelPos.Y;
-
-
+ 
+        
         public double Length { get; private set; }
 
         private void UpdateLength()
@@ -76,6 +62,22 @@ namespace Trigonometry.ViewModels
 
         public double Degree => Angle * 180 / Math.PI;
 
+        public TriangleViewModel Triangle { get; }
+
+        public string Label { get; }
+
+        public TrianglePointViewModel(TriangleViewModel triangle, string label)
+        {
+            Triangle = triangle;
+            Label = label;
+        }
+
+
+
+
+        public void Set(double x, double y) => P = new Vector2(x, y);
+
+
         private static double CalcAngleA(double p, double a, double b, double c)
         {
             double k = (p - b) * (p - c) / p / (p - a);
@@ -88,12 +90,12 @@ namespace Trigonometry.ViewModels
             y = P.Y;
         }
 
-        public void Set(double x, double y) => P = new Vector2(x, y);
-
-
-        public TriangleViewModel Triangle { get; set; }
-
-
+        public Vector2 GetLabelPos()
+        {
+            Vector2 mid = Vector2.Normalize(P - Next.P) + Vector2.Normalize(P - Prev.P);
+            Vector2 dv = Vector2.Normalize(mid);
+            return P + dv * Triangle.Indent;
+        }
 
 
         public event PropertyChangedEventHandler PropertyChanged;

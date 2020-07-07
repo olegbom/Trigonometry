@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.DoubleNumerics;
+using System.Globalization;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
@@ -13,14 +14,22 @@ namespace Trigonometry.Views
 {
     public class TriangleVisual : FrameworkElement
     {
+
+
         private readonly VisualCollection _children;
         private readonly DrawingVisual _visualLines = new DrawingVisual();
         private readonly DrawingVisual[] _visualsPoints = new DrawingVisual[3];
 
         private readonly Pen _pen = new Pen(Brushes.Black, 1);
+        private readonly Pen _anglePen = new Pen(Brushes.DodgerBlue, 1);
+        private readonly Typeface _typeface = new Typeface("Arial");
+
+        private double _dpi = 96.0;
+
 
         public static readonly DependencyProperty TriangleViewModelProperty = DependencyProperty.Register(
-            "TriangleViewModel", typeof(TriangleViewModel), typeof(TriangleVisual), new PropertyMetadata(default(TriangleViewModel), TriangleChangedCallback));
+            "TriangleViewModel", typeof(TriangleViewModel), typeof(TriangleVisual),
+            new PropertyMetadata(default(TriangleViewModel), TriangleChangedCallback));
 
         private static void TriangleChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -46,8 +55,7 @@ namespace Trigonometry.Views
                     points[i] = new Point(Math.Round(triangleVm[i].X) + 0.5, Math.Round(triangleVm[i].Y) + 0.5);
                 using (var context = _visualLines.RenderOpen())
                 {
-                    ;
-                    context.DrawRectangle(Brushes.Beige, null, _visualLines.DescendantBounds);
+                    context.DrawRectangle(Brushes.Beige, null, new Rect(RenderSize));
                     for (int i = 0; i < 3; i++)
                         context.DrawLine(_pen, points[i], points[(i + 1) % 3]);
                 }
@@ -55,7 +63,17 @@ namespace Trigonometry.Views
                 for (int i = 0; i < 3; i++)
                 {
                     using var context = _visualsPoints[i].RenderOpen();
-                    context.DrawEllipse(Brushes.White, _pen, points[i],5, 5);
+                    context.DrawEllipse(Brushes.White, _pen, points[i], 5, 5);
+                    
+                    
+                    var text = new FormattedText(triangleVm[i].Label, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, _typeface,
+                        14, Brushes.Black, _dpi);
+                    var labelPos = triangleVm[i].GetLabelPos() - new Vector2(text.Width/2, text.Height/2);
+                    context.DrawText(text, labelPos.ToPoint());
+
+                    
+                    
+                    //var drawing = new GeometryDrawing(Brushes.Transparent, _anglePen, new PathGeometry( new[]{new PathFigure() }));
                 }
                     
             }
@@ -121,7 +139,18 @@ namespace Trigonometry.Views
             };
                 
             MouseLeave += (o, e) => { isPressed = false; };
-            
+
+            SizeChanged += (o, e) => { TriangleVmOnPointsChanged(TriangleViewModel, null); };
+
+            Initialized += (o, e) =>
+            {
+                PresentationSource source = PresentationSource.FromVisual(this);
+                if (source?.CompositionTarget != null)
+                {
+                    _dpi = 96.0 * source.CompositionTarget.TransformToDevice.M11;
+                }
+            };
+
         }
 
         private void MouseDownHandler(object sender, MouseButtonEventArgs e)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.DoubleNumerics;
 using System.Text;
 using System.Windows;
 using Trigonometry.Annotations;
@@ -14,5 +15,7 @@ namespace Trigonometry
             y = p.Y;
         }
 
+        public static Point ToPoint(this Vector2 v) => new Point(v.X, v.Y);
+        
     }
 }

@@ -11,14 +11,11 @@ namespace Trigonometry.ViewModels
 {
     public class TriangleViewModel: INotifyPropertyChanged
     {
-        public TrianglePointViewModel[] Points { get; } = new TrianglePointViewModel[3]
-        {
-            new TrianglePointViewModel(),
-            new TrianglePointViewModel(),
-            new TrianglePointViewModel(),
-        };
+        private static readonly string[] Labels = {"A", "B", "C"};
 
-        public TrianglePointViewModel this[int i] => Points[i % 3];
+        private readonly TrianglePointViewModel[] _points = new TrianglePointViewModel[3];
+
+        public TrianglePointViewModel this[int i] => _points[i % 3];
 
         public double Semiperimeter { get; private set; }
 
@@ -27,15 +24,17 @@ namespace Trigonometry.ViewModels
             Semiperimeter = (this[0].Length + this[1].Length + this[2].Length) / 2;
         }
         
-        public double Indent { get; set; } = 10;
+        public double Indent { get; set; } = 15;
 
         public TriangleViewModel()
         {
+            for(int i = 0; i < 3; i++)
+                _points[i] = new TrianglePointViewModel(this, Labels[i]);
+
             for (int i = 0; i < 3; i++)
             {
                 this[i].Next = this[i + 1];
                 this[i].Prev = this[i + 2];
-                this[i].Triangle = this;
             }
             
         }

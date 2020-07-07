@@ -36,24 +36,16 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        
-        <Canvas >
-
-            <TextBlock Canvas.Left="{Binding Points[0].LabelX}" Canvas.Top="{Binding Points[0].LabelY}" Style="{StaticResource LabelStyle}">A</TextBlock>
-            <TextBlock Canvas.Left="{Binding Points[1].LabelX}" Canvas.Top="{Binding Points[1].LabelY}" Style="{StaticResource LabelStyle}">B</TextBlock>
-            <TextBlock Canvas.Left="{Binding Points[2].LabelX}" Canvas.Top="{Binding Points[2].LabelY}" Style="{StaticResource LabelStyle}">C</TextBlock>
-
-            <local:TriangleVisual TriangleViewModel="{Binding}"></local:TriangleVisual>
-        </Canvas>
-        
+        <local:TriangleVisual TriangleViewModel="{Binding}"></local:TriangleVisual>
+       
         <Border Grid.Column="1" BorderThickness="1" BorderBrush="Black">
             <StackPanel >
-                <TextBlock Text="{Binding Points[0].Degree, StringFormat=∠A: {0:F2}°}" Margin="2"></TextBlock>
-                <TextBlock Text="{Binding Points[1].Degree, StringFormat=∠B: {0:F2}°}" Margin="2"></TextBlock>
-                <TextBlock Text="{Binding Points[2].Degree, StringFormat=∠C: {0:F2}°}" Margin="2"></TextBlock>
-                <TextBlock Text="{Binding Points[0].Length, StringFormat=a: {0:F2}}" Margin="2"></TextBlock>
-                <TextBlock Text="{Binding Points[1].Length, StringFormat=b: {0:F2}}" Margin="2"></TextBlock>
-                <TextBlock Text="{Binding Points[2].Length, StringFormat=c: {0:F2}}" Margin="2"></TextBlock>
+                <TextBlock Text="{Binding [0].Degree, StringFormat=∠A: {0:F2}°}" Margin="2"></TextBlock>
+                <TextBlock Text="{Binding [1].Degree, StringFormat=∠B: {0:F2}°}" Margin="2"></TextBlock>
+                <TextBlock Text="{Binding [2].Degree, StringFormat=∠C: {0:F2}°}" Margin="2"></TextBlock>
+                <TextBlock Text="{Binding [0].Length, StringFormat=a: {0:F2}}" Margin="2"></TextBlock>
+                <TextBlock Text="{Binding [1].Length, StringFormat=b: {0:F2}}" Margin="2"></TextBlock>
+                <TextBlock Text="{Binding [2].Length, StringFormat=c: {0:F2}}" Margin="2"></TextBlock>
             </StackPanel>
         </Border>
     </Grid>
