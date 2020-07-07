@@ -37,20 +37,28 @@ namespace Trigonometry.ViewModels
             UpdateAngle();
             Next.UpdateAngle();
             Prev.UpdateAngle();
+            UpdateLabelPos();
+            Next.UpdateLabelPos();
+            Prev.UpdateLabelPos();
+            Triangle.InvokePointsChanged();
         }
-
-
-        #region Next
+        
 
         public TrianglePointViewModel Next { get; set; }
-
-        #endregion
-
-        #region Prev
-
         public TrianglePointViewModel Prev { get; set; }
 
-        #endregion
+        public Vector2 LabelPos { get; private set; }
+
+        public void UpdateLabelPos()
+        {
+            Vector2 mid = (Next.P + Prev.P) / 2;
+            Vector2 dv = Vector2.Normalize(P - mid);
+            LabelPos = P + dv * 15;
+        }
+
+        public double LabelX => LabelPos.X;
+        public double LabelY => LabelPos.Y;
+
 
         public double Length { get; private set; }
 

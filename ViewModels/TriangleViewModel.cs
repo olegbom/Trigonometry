@@ -28,7 +28,7 @@ namespace Trigonometry.ViewModels
         }
         
         public double Indent { get; set; } = 10;
-        
+
         public TriangleViewModel()
         {
             for (int i = 0; i < 3; i++)
@@ -37,7 +37,14 @@ namespace Trigonometry.ViewModels
                 this[i].Prev = this[i + 2];
                 this[i].Triangle = this;
             }
-    
+            
+        }
+
+        public event EventHandler PointsChanged;
+
+        public void InvokePointsChanged()
+        {
+            PointsChanged?.Invoke(this, null);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -26,34 +26,35 @@
             <Setter Property="StrokeThickness" Value="1"/>
             <Setter Property="Stroke" Value="Black"/>
         </Style>
+        <Style x:Key="LabelStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Canvas Width="0" Height="0" >
- 
-            <Line X1="{Binding Points[0].X}" Y1="{Binding Points[0].Y}" X2="{Binding Points[1].X}" Y2="{Binding Points[1].Y}"/>
-            <Line X1="{Binding Points[1].X}" Y1="{Binding Points[1].Y}" X2="{Binding Points[2].X}" Y2="{Binding Points[2].Y}"/>
-            <Line X1="{Binding Points[2].X}" Y1="{Binding Points[2].Y}" X2="{Binding Points[0].X}" Y2="{Binding Points[0].Y}"/>
+        
+        <Canvas >
 
-            <Ellipse Canvas.Left="{Binding Points[0].X}" Canvas.Top="{Binding Points[0].Y}"/>
-            <Ellipse Canvas.Left="{Binding Points[1].X}" Canvas.Top="{Binding Points[1].Y}"/>
-            <Ellipse Canvas.Left="{Binding Points[2].X}" Canvas.Top="{Binding Points[2].Y}"/>
+            <TextBlock Canvas.Left="{Binding Points[0].LabelX}" Canvas.Top="{Binding Points[0].LabelY}" Style="{StaticResource LabelStyle}">A</TextBlock>
+            <TextBlock Canvas.Left="{Binding Points[1].LabelX}" Canvas.Top="{Binding Points[1].LabelY}" Style="{StaticResource LabelStyle}">B</TextBlock>
+            <TextBlock Canvas.Left="{Binding Points[2].LabelX}" Canvas.Top="{Binding Points[2].LabelY}" Style="{StaticResource LabelStyle}">C</TextBlock>
 
-       
-            <Canvas.LayoutTransform>
-                <ScaleTransform ScaleY="-1" ScaleX="1"></ScaleTransform>
-            </Canvas.LayoutTransform>
+            <local:TriangleVisual TriangleViewModel="{Binding}"></local:TriangleVisual>
         </Canvas>
-        <StackPanel Grid.Column="1">
-            <TextBlock Text="{Binding Points[0].Degree, StringFormat=∠A: {0:F2}°}"></TextBlock>
-            <TextBlock Text="{Binding Points[1].Degree, StringFormat=∠B: {0:F2}°}"></TextBlock>
-            <TextBlock Text="{Binding Points[2].Degree, StringFormat=∠C: {0:F2}°}"></TextBlock>
-            <TextBlock Text="{Binding Points[0].Length, StringFormat=a: {0:F2}}"></TextBlock>
-            <TextBlock Text="{Binding Points[1].Length, StringFormat=b: {0:F2}}"></TextBlock>
-            <TextBlock Text="{Binding Points[2].Length, StringFormat=c: {0:F2}}"></TextBlock>
-        </StackPanel>
+        
+        <Border Grid.Column="1" BorderThickness="1" BorderBrush="Black">
+            <StackPanel >
+                <TextBlock Text="{Binding Points[0].Degree, StringFormat=∠A: {0:F2}°}" Margin="2"></TextBlock>
+                <TextBlock Text="{Binding Points[1].Degree, StringFormat=∠B: {0:F2}°}" Margin="2"></TextBlock>
+                <TextBlock Text="{Binding Points[2].Degree, StringFormat=∠C: {0:F2}°}" Margin="2"></TextBlock>
+                <TextBlock Text="{Binding Points[0].Length, StringFormat=a: {0:F2}}" Margin="2"></TextBlock>
+                <TextBlock Text="{Binding Points[1].Length, StringFormat=b: {0:F2}}" Margin="2"></TextBlock>
+                <TextBlock Text="{Binding Points[2].Length, StringFormat=c: {0:F2}}" Margin="2"></TextBlock>
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>
