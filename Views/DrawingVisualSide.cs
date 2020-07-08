@@ -6,7 +6,8 @@ namespace Trigonometry.Views
 {
     public class DrawingVisualSide : EditableDrawingVisual
     {
-        private static readonly Pen SelectedPen = new Pen(Brushes.Black, 3);
+        private new static readonly Pen Pen = new Pen(new SolidColorBrush(Color.FromArgb(255, 0xf0, 0xC4, 0x19)), 1);
+        private static readonly Pen SelectedPen = new Pen(new SolidColorBrush(Color.FromArgb(255, 0xf0, 0xC4, 0x19)), 3);
 
         private readonly TrianglePointViewModel _firstPoint;
         private readonly TrianglePointViewModel _secondPoint;

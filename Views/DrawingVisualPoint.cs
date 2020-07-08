@@ -28,7 +28,7 @@ namespace Trigonometry.Views
             {
                 _labelFormattedText = new FormattedText(_pointVm.Label, CultureInfo.CurrentCulture,
                     FlowDirection.LeftToRight, Typeface,
-                    14, Brushes.Black, TriangleVisual.Dpi);
+                    14, Brushes.Beige, TriangleVisual.Dpi);
             }
         }
 
@@ -61,7 +61,7 @@ namespace Trigonometry.Views
             using var context = RenderOpen();
             Point p = _pointVm.P.ToRoundedPoint(); 
 
-            context.DrawEllipse(IsMouseOver ? Brushes.CornflowerBlue : Brushes.White, Pen, p, 5, 5);
+            context.DrawEllipse(IsMouseOver ? Brushes.Gold : new SolidColorBrush(Color.FromRgb(30,30,30)), Pen, p, 5, 5);
 
             var labelPos = _pointVm.GetLabelPos() - new Vector2(_labelFormattedText.Width / 2, _labelFormattedText.Height / 2);
             context.DrawText(_labelFormattedText, labelPos.ToPoint());

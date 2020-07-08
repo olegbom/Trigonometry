@@ -24,9 +24,8 @@ namespace Trigonometry.Views
 
         private static readonly Typeface Typeface = new Typeface("Arial");
 
-        private readonly Pen _pen = new Pen(Brushes.Black, 1);
-        private readonly Pen _anglePen = new Pen(Brushes.DodgerBlue, 1);
-        private readonly Pen _gridPen = new Pen(new SolidColorBrush(Color.FromArgb(30,0,0,0)), 1);
+
+        private readonly Pen _gridPen = new Pen(new SolidColorBrush(Color.FromArgb(30,255,255,255)), 1);
 
         
         public static double Dpi { get; private set; } = 96.0;
@@ -71,7 +70,7 @@ namespace Trigonometry.Views
                         geomContext.LineTo(points[2], true, false);
                         
                     } 
-                    context.DrawGeometry(new SolidColorBrush(Color.FromArgb(30, 0, 0, 255)), null,  geom);
+                    context.DrawGeometry(new SolidColorBrush(Color.FromArgb(30, 255, 203, 0)), null,  geom);
                 }
 
                 foreach (var editableDrawingVisual in _editableDrawingVisuals)
@@ -217,7 +216,7 @@ namespace Trigonometry.Views
             var size = RenderSize;
             
             using var context = _visualGrid.RenderOpen();
-            context.DrawRectangle(Brushes.Cornsilk, null, new Rect(size));
+            context.DrawRectangle(new SolidColorBrush(Color.FromArgb(255,30,30,30)), null, new Rect(size));
             for (int i = 1, count = (int) (size.Width / 10) + 1 ; i < count; i++)
             {
                 context.DrawLine(_gridPen, new Point(i*10,0), new Point(i * 10, size.Height));

@@ -5,7 +5,7 @@ namespace Trigonometry.Views
 {
     public abstract class EditableDrawingVisual : DrawingVisual
     {
-        protected static readonly Pen Pen = new Pen(Brushes.Black, 1);
+        protected static readonly Pen Pen = new Pen(Brushes.OrangeRed, 1);
         protected static readonly Typeface Typeface = new Typeface("Arial");
 
         public bool IsMouseOver { get; private set; }
