@@ -19,6 +19,7 @@ namespace Trigonometry.Views
         private readonly DrawingVisual[] _visualsPoints = new DrawingVisual[3];
         private readonly DrawingVisualSide[] _drawingVisualSides = new DrawingVisualSide[3];
         private readonly DrawingVisualPoint[] _drawingVisualPoints = new DrawingVisualPoint[3];
+        private DrawingVisualTriangle _drawingVisualTriangle;
 
         private readonly List<EditableDrawingVisual> _editableDrawingVisuals = new List<EditableDrawingVisual>();
 
@@ -43,7 +44,7 @@ namespace Trigonometry.Views
                 if (e.OldValue is TriangleViewModel oldTriangleVm)
                 {
                     oldTriangleVm.PointsChanged -= triangleVisual.TriangleVmOnPointsChanged;
-                    triangleVisual.RemoveVisuals(oldTriangleVm);
+                    triangleVisual.RemoveVisuals();
                    
                 }
                 triangleVisual.CreateVisuals(triangleVm);
@@ -57,33 +58,18 @@ namespace Trigonometry.Views
         {
             if (sender is TriangleViewModel triangleVm)
             {
-                Point[] points = new Point[3];
-                for (int i = 0; i < 3; i++)
-                    points[i] = new Point(Math.Round(triangleVm[i].X) + 0.5, Math.Round(triangleVm[i].Y) + 0.5);
-                using (var context = _visualLines.RenderOpen())
-                {
-                    var geom = new StreamGeometry(){FillRule = FillRule.Nonzero};
-                    using (var geomContext = geom.Open())
-                    {
-                        geomContext.BeginFigure(points[0], true, true);
-                        geomContext.LineTo(points[1], true, false);
-                        geomContext.LineTo(points[2], true, false);
-                        
-                    } 
-                    context.DrawGeometry(new SolidColorBrush(Color.FromArgb(30, 255, 203, 0)), null,  geom);
-                }
-
                 foreach (var editableDrawingVisual in _editableDrawingVisuals)
                 {
                     editableDrawingVisual.Draw();
                 }
-
-                    
             }
         }
 
         private void CreateVisuals(TriangleViewModel triangleVm)
         {
+            _drawingVisualTriangle = new DrawingVisualTriangle(triangleVm);
+            _children.Add(_drawingVisualTriangle);
+            _editableDrawingVisuals.Add(_drawingVisualTriangle);
             for (int i = 0; i < 3; i++)
             {
                 var newSide = new DrawingVisualSide(triangleVm[i], triangleVm[i + 1]);
@@ -100,7 +86,7 @@ namespace Trigonometry.Views
             }
         }
 
-        private void RemoveVisuals(TriangleViewModel triangleVm)
+        private void RemoveVisuals()
         {
             for (int i = 0; i < 3; i++)
             {
@@ -112,6 +98,8 @@ namespace Trigonometry.Views
                 _editableDrawingVisuals.Remove(_drawingVisualPoints[i]);
                 _drawingVisualPoints[i] = null;
             }
+            _children.Remove(_drawingVisualTriangle);
+            _editableDrawingVisuals.Remove(_drawingVisualTriangle);
         }
 
 
@@ -187,7 +175,15 @@ namespace Trigonometry.Views
 
                 
             };
-                
+            MouseWheel += (o, e) =>
+            {
+                Point pt = e.GetPosition(this);
+                var dvp = _editableDrawingVisuals.Find(x => x.IsMouseOver);
+                if (dvp != null && VisualTreeHelper.HitTest(dvp, pt) != null)
+                {
+                    dvp.Rotate(e.Delta, pt.ToVector2());
+                }
+            };
             MouseLeave += (o, e) =>
             {
                 TriangleVmOnPointsChanged(TriangleViewModel, null);

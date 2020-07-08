@@ -31,14 +31,17 @@ namespace Trigonometry.ViewModels
 
         public void OnPChanged()
         {
-            Next.UpdateLength();
-            Prev.UpdateLength();
-            Triangle.SemiperimeterUpdate();
-            UpdateAngle();
-            Next.UpdateAngle();
-            Prev.UpdateAngle();
-            Triangle.AreaUpdate();
-            Triangle.InvokePointsChanged();
+            if(Triangle.IsPointsReactionEnabled)
+            {
+                Next.UpdateLength();
+                Prev.UpdateLength();
+                Triangle.SemiperimeterUpdate();
+                UpdateAngle();
+                Next.UpdateAngle();
+                Prev.UpdateAngle();
+                Triangle.AreaUpdate();
+                Triangle.InvokePointsChanged();
+            }
         }
         
 
@@ -49,14 +52,14 @@ namespace Trigonometry.ViewModels
         
         public double Length { get; private set; }
 
-        private void UpdateLength()
+        public void UpdateLength()
         {
             Length = (Next.P - Prev.P).Length();
         }
 
         public double Angle { get; private set; }
 
-        private void UpdateAngle()
+        public void UpdateAngle()
         {
             Angle = CalcAngleA(Triangle.Semiperimeter, Length, Next.Length, Prev.Length);
         }

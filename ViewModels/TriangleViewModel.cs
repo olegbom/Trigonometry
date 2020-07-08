@@ -39,6 +39,9 @@ namespace Trigonometry.ViewModels
         
         public double Indent { get; set; } = 15;
 
+
+        public bool IsPointsReactionEnabled { get; set; } = true;
+
         public TriangleViewModel()
         {
             for(int i = 0; i < 3; i++)
@@ -51,6 +54,37 @@ namespace Trigonometry.ViewModels
             }
             
         }
+
+        private Vector2[] _oldPoints = new Vector2[3]{Vector2.Zero, Vector2.Zero, Vector2.Zero}; 
+        public void StartDrag()
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                _oldPoints[i] = _points[i].P;
+            }
+        }
+
+        public void Drag(Vector2 dv)
+        {
+            IsPointsReactionEnabled = false;
+            for (int i = 0; i < 3; i++)
+                _points[i].P = _oldPoints[i] + dv;
+            IsPointsReactionEnabled = true;
+            
+            InvokePointsChanged();
+        }
+
+        public void Rotate(double rad, Vector2 origPoint)
+        {
+            var rotMat = Matrix3x2.CreateRotation(rad, origPoint);
+            IsPointsReactionEnabled = false;
+            for (int i = 0; i < 3; i++)
+                _points[i].P = Vector2.Transform(_points[i].P, rotMat);
+            IsPointsReactionEnabled = true;
+           
+            InvokePointsChanged();
+        }
+
 
         public event EventHandler PointsChanged;
 

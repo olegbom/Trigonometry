@@ -26,9 +26,9 @@
                 <TextBlock Text="{Binding [1].Length, StringFormat=b: {0:F2}}" Margin="2"></TextBlock>
                 <TextBlock Text="{Binding [2].Length, StringFormat=c: {0:F2}}" Margin="2"></TextBlock>
                 <TextBlock Text="{Binding Area, StringFormat=S: {0:F2}}" Margin="2"></TextBlock>
-                <TextBlock Text="{Binding [0].P, StringFormat=A: {0}}"></TextBlock>
-                <TextBlock Text="{Binding [1].P, StringFormat=B: {0}}"></TextBlock>
-                <TextBlock Text="{Binding [2].P, StringFormat=C: {0}}"></TextBlock>
+                <TextBlock Text="{Binding [0].P, StringFormat=A: {0:F2}}"></TextBlock>
+                <TextBlock Text="{Binding [1].P, StringFormat=B: {0:F2}}"></TextBlock>
+                <TextBlock Text="{Binding [2].P, StringFormat=C: {0:F2}}"></TextBlock>
             </StackPanel>
         </Border>
     </Grid>

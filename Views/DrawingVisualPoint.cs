@@ -32,11 +32,6 @@ namespace Trigonometry.Views
             }
         }
 
-        protected override void MouseOverChanged()
-        {
-            Draw();
-        }
-
 
         private Vector2 _oldMouseDown = Vector2.Zero;
         public override void StartDrag()
@@ -59,7 +54,7 @@ namespace Trigonometry.Views
         public override void Draw()
         {
             using var context = RenderOpen();
-            Point p = _pointVm.P.ToRoundedPoint(); 
+            Point p = _pointVm.P.ToPoint(); 
 
             context.DrawEllipse(IsMouseOver ? Brushes.Gold : new SolidColorBrush(Color.FromRgb(30,30,30)), Pen, p, 5, 5);
 
