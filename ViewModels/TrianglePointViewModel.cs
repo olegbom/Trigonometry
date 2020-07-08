@@ -37,6 +37,7 @@ namespace Trigonometry.ViewModels
             UpdateAngle();
             Next.UpdateAngle();
             Prev.UpdateAngle();
+            Triangle.AreaUpdate();
             Triangle.InvokePointsChanged();
         }
         

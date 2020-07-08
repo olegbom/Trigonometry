@@ -23,6 +23,19 @@ namespace Trigonometry.ViewModels
         {
             Semiperimeter = (this[0].Length + this[1].Length + this[2].Length) / 2;
         }
+
+        public double Area { get; private set; }
+
+        public void AreaUpdate()
+        {
+            double area = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                area += (this[i].X + this[i + 1].X) * (this[i].Y - this[i + 1].Y);
+            }
+            area /= 2;
+            Area = Math.Abs(area);
+        }
         
         public double Indent { get; set; } = 15;
 

@@ -11,7 +11,33 @@
     <Window.DataContext>
         <vm:MainViewModel></vm:MainViewModel>
     </Window.DataContext>
+    <Window.Resources>
+        <DrawingImage x:Key="IconArrowAll">
+            <DrawingImage.Drawing>
+                <GeometryDrawing Brush="Black" Geometry="M13,11H18L16.5,9.5L17.92,8.08L21.84,12L17.92,15.92L16.5,14.5L18,13H13V18L14.5,16.5L15.92,17.92L12,21.84L8.08,17.92L9.5,16.5L11,18V13H6L7.5,14.5L6.08,15.92L2.16,12L6.08,8.08L7.5,9.5L6,11H11V6L9.5,7.5L8.08,6.08L12,2.16L15.92,6.08L14.5,7.5L13,6V11Z" />
+            </DrawingImage.Drawing>
+        </DrawingImage>
+        <DrawingImage  x:Key="IconRotate">
+            <DrawingImage.Drawing>
+                <GeometryDrawing Brush="Black" Geometry="M12,18A6,6 0 0,1 6,12C6,11 6.25,10.03 6.7,9.2L5.24,7.74C4.46,8.97 4,10.43 4,12A8,8 0 0,0 12,20V23L16,19L12,15M12,4V1L8,5L12,9V6A6,6 0 0,1 18,12C18,13 17.75,13.97 17.3,14.8L18.76,16.26C19.54,15.03 20,13.57 20,12A8,8 0 0,0 12,4Z" />
+            </DrawingImage.Drawing>
+        </DrawingImage>
+    </Window.Resources>
     <Grid>
-        <v:TriangleView DataContext="{Binding TriangleVm}"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <ToolBar>
+            <ToggleButton IsChecked="{Binding TriangleEditor.IsMoveSelected, UpdateSourceTrigger=PropertyChanged}">
+                <Image Source="{StaticResource IconArrowAll}" Width="20" SnapsToDevicePixels="True"/>
+            </ToggleButton>
+            <ToggleButton IsChecked="{Binding TriangleEditor.IsRotateSelected, UpdateSourceTrigger=PropertyChanged}">
+                <Image Source="{StaticResource IconRotate}"></Image>
+            </ToggleButton>
+        </ToolBar>
+
+        <v:TriangleView Grid.Row="1" DataContext="{Binding TriangleVm}"/>
     </Grid>
 </Window>

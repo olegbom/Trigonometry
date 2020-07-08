@@ -16,6 +16,6 @@ namespace Trigonometry
         }
 
         public static Point ToPoint(this Vector2 v) => new Point(v.X, v.Y);
-        
+        public static Point ToRoundedPoint(this Vector2 v) => new Point(Math.Round(v.X) + 0.5, Math.Round(v.Y) + 0.5);
     }
 }

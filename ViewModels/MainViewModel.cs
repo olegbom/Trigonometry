@@ -11,8 +11,12 @@ namespace Trigonometry.ViewModels
     {
         public TriangleViewModel TriangleVm { get; } = new TriangleViewModel();
 
+        public TriangleEditorViewModel TriangleEditor { get; } = new TriangleEditorViewModel();
+
         public MainViewModel()
         {
+            TriangleEditor.TriangleVm = TriangleVm;
+
             TriangleVm[0].Set(10,10);
             TriangleVm[1].Set(210,10);
             TriangleVm[2].Set(110,160);

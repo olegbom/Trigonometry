@@ -8,28 +8,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance vm:TriangleViewModel}">
     <UserControl.Resources>
-        <Style TargetType="{x:Type Ellipse}">
-            <Setter Property="SnapsToDevicePixels" Value="True"></Setter>
-            <Setter Property="Width" Value="9"/>
-            <Setter Property="Height" Value="9"/>
-            <Setter Property="RenderTransform">
-                <Setter.Value>
-                    <TranslateTransform X="-5" Y="-5"></TranslateTransform>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Fill" Value="White"/>
-            <Setter Property="StrokeThickness" Value="2"/>
-            <Setter Property="Stroke" Value="Black"></Setter>
-        </Style>
-        <Style TargetType="{x:Type Line}">
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="StrokeThickness" Value="1"/>
-            <Setter Property="Stroke" Value="Black"/>
-        </Style>
-        <Style x:Key="LabelStyle" TargetType="{x:Type TextBlock}">
-            <Setter Property="TextAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"></Setter>
-        </Style>
+     
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -46,6 +25,10 @@
                 <TextBlock Text="{Binding [0].Length, StringFormat=a: {0:F2}}" Margin="2"></TextBlock>
                 <TextBlock Text="{Binding [1].Length, StringFormat=b: {0:F2}}" Margin="2"></TextBlock>
                 <TextBlock Text="{Binding [2].Length, StringFormat=c: {0:F2}}" Margin="2"></TextBlock>
+                <TextBlock Text="{Binding Area, StringFormat=S: {0:F2}}" Margin="2"></TextBlock>
+                <TextBlock Text="{Binding [0].P, StringFormat=A: {0}}"></TextBlock>
+                <TextBlock Text="{Binding [1].P, StringFormat=B: {0}}"></TextBlock>
+                <TextBlock Text="{Binding [2].P, StringFormat=C: {0}}"></TextBlock>
             </StackPanel>
         </Border>
     </Grid>
