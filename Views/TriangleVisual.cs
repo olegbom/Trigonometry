@@ -341,6 +341,20 @@ namespace Trigonometry.Views
             return sortY[2].Y - Math.Sqrt( (th + bh) * bh*(1 - factor));
         }
 
+        private double DivideTriangleVertical(Vector2[] tri, double factor)
+        {
+            var sortY = tri.OrderBy(p => p.X).ToArray();
+
+            double th = sortY[1].X - sortY[0].X;
+            double bh = sortY[2].X - sortY[1].X;
+            double h = th + bh;
+
+            if (th > h * factor)
+                return sortY[0].X + Math.Sqrt((th + bh) * th * factor);
+            return sortY[2].X - Math.Sqrt((th + bh) * bh * (1 - factor));
+        }
+
+
         protected override int VisualChildrenCount => _children.Count;
 
         // Provide a required override for the GetVisualChild method.
