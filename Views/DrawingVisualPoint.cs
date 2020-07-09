@@ -50,6 +50,10 @@ namespace Trigonometry.Views
             _pointVm.P = newP;
         }
 
+        public override void Rotate(int delta, Vector2 mousePos)
+        {
+            _pointVm.Triangle.Rotate(delta / 90.0 / 180.0 * Math.PI, _pointVm.P);
+        }
 
         public override void Draw()
         {

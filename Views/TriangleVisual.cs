@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.DoubleNumerics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Trigonometry.ViewModels;
 
@@ -15,11 +18,7 @@ namespace Trigonometry.Views
     {
         private readonly VisualCollection _children;
         private readonly DrawingVisual _visualGrid = new DrawingVisual();
-        private readonly DrawingVisual _visualLines = new DrawingVisual();
-        private readonly DrawingVisual[] _visualsPoints = new DrawingVisual[3];
-        private readonly DrawingVisualSide[] _drawingVisualSides = new DrawingVisualSide[3];
-        private readonly DrawingVisualPoint[] _drawingVisualPoints = new DrawingVisualPoint[3];
-        private DrawingVisualTriangle _drawingVisualTriangle;
+        private readonly DrawingVisual _visualCuttingForm = new DrawingVisual();
 
         private readonly List<EditableDrawingVisual> _editableDrawingVisuals = new List<EditableDrawingVisual>();
 
@@ -27,8 +26,8 @@ namespace Trigonometry.Views
 
 
         private readonly Pen _gridPen = new Pen(new SolidColorBrush(Color.FromArgb(30,255,255,255)), 1);
+        private readonly Pen _cuttingFormPen = new Pen(new SolidColorBrush(Color.FromArgb(211, 126, 255, 102)), 1);
 
-        
         public static double Dpi { get; private set; } = 96.0;
         
 
@@ -62,44 +61,39 @@ namespace Trigonometry.Views
                 {
                     editableDrawingVisual.Draw();
                 }
+
+                UpdateCuttingForm(_mousePos);
             }
         }
 
         private void CreateVisuals(TriangleViewModel triangleVm)
         {
-            _drawingVisualTriangle = new DrawingVisualTriangle(triangleVm);
-            _children.Add(_drawingVisualTriangle);
-            _editableDrawingVisuals.Add(_drawingVisualTriangle);
+            var newTriangle = new DrawingVisualTriangle(triangleVm);
+            _children.Add(newTriangle);
+            _editableDrawingVisuals.Add(newTriangle);
             for (int i = 0; i < 3; i++)
             {
                 var newSide = new DrawingVisualSide(triangleVm[i], triangleVm[i + 1]);
-                _drawingVisualSides[i] = newSide;
                 _children.Add(newSide);
                 _editableDrawingVisuals.Add(newSide);
             }
             for (int i = 0; i < 3; i++)
             { 
                 var newPoint = new DrawingVisualPoint(triangleVm[i]);
-                _drawingVisualPoints[i] = newPoint;
                 _children.Add(newPoint);
                 _editableDrawingVisuals.Add(newPoint);
             }
+            _children.Add(_visualCuttingForm);
         }
 
         private void RemoveVisuals()
         {
-            for (int i = 0; i < 3; i++)
+            foreach (var edv in _editableDrawingVisuals)
             {
-                _children.Remove(_drawingVisualSides[i]);
-                _editableDrawingVisuals.Remove(_drawingVisualSides[i]);
-                _drawingVisualSides[i] = null;
-
-                _children.Remove(_drawingVisualPoints[i]);
-                _editableDrawingVisuals.Remove(_drawingVisualPoints[i]);
-                _drawingVisualPoints[i] = null;
+                _children.Remove(edv);
             }
-            _children.Remove(_drawingVisualTriangle);
-            _editableDrawingVisuals.Remove(_drawingVisualTriangle);
+            _editableDrawingVisuals.Clear();
+            _children.Remove(_visualCuttingForm);
         }
 
 
@@ -118,14 +112,9 @@ namespace Trigonometry.Views
             _children.Add(_visualGrid);
             _visualGrid.Transform = new TranslateTransform(0.5, 0.5);
             UpdateGrid();
-            _children.Add(_visualLines);
-            for (int i = 0; i < 3; i++)
-            {
-                _visualsPoints[i] = new DrawingVisual();
-                _children.Add(_visualsPoints[i]);
-            }
 
-         
+            
+
             Point downPoint = new Point(0,0);
             EditableDrawingVisual draggableDrawingVisual = null;
             MouseDown += (o, e) =>
@@ -164,16 +153,28 @@ namespace Trigonometry.Views
                 }
                 else
                 {
-                    var edvHit = VisualTreeHelper.HitTest(this, pt)?.VisualHit as EditableDrawingVisual;
-                    edvHit?.MouseOver(true);
-                    foreach (var edvNotHit in _editableDrawingVisuals)
+                  
+                    for (int i = _editableDrawingVisuals.Count - 1; i >= 0 ; i--)
                     {
-                        if(edvNotHit != edvHit)
-                            edvNotHit.MouseOver(false);
+                        var edv = _editableDrawingVisuals[i];
+                        if (edv.HitTest(pt) != null)
+                        {
+                            edv.MouseOver(true);
+                            i--;
+                            for (; i >= 0; i--)
+                            {
+                                edv = _editableDrawingVisuals[i];
+                                edv.MouseOver(false);
+                            }
+                            break;
+                        }
+                        edv.MouseOver(false);
                     }
                 }
 
-                
+                UpdateCuttingForm(pt);
+
+
             };
             MouseWheel += (o, e) =>
             {
@@ -222,6 +223,122 @@ namespace Trigonometry.Views
             {
                 context.DrawLine(_gridPen, new Point(0, i*10), new Point(size.Width + 0.5, i*10) );
             }
+        }
+
+        private Point _mousePos;
+        private void UpdateCuttingForm(Point mousePos)
+        {
+            _mousePos = mousePos;
+            using var context = _visualCuttingForm.RenderOpen();
+            
+            
+            
+            Vector2[] points = new Vector2[3];
+            for (int i = 0; i < 3; i++)
+            {
+                points[i] = TriangleViewModel[i].P;
+            }
+            
+            var cutLevel = DivideTriangleHorizontal(points, 1 / 3.0);
+
+
+           
+            var cutVertices = new Vector2[2];
+            int countOfVertices = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                var a = TriangleViewModel[i].P;
+                var b = TriangleViewModel[i + 1].P;
+                if ((a.Y <= cutLevel && b.Y >  cutLevel) ||
+                    (a.Y >  cutLevel && b.Y <= cutLevel))
+                {
+                    //(x - a.X) / (b.X - a.X) = (y - a.Y) / (b.Y - a.Y);
+                    //(x - a.X) * (b.Y - a.Y) = (y - a.Y) * (b.X - a.X);
+                    //выражаем X
+                    //x = (y - a.Y) * (b.X - a.X) / (b.Y - a.Y) + a.X;
+                    var x = a.X;
+                    if (Math.Abs(b.Y - a.Y) > 1e-6)
+                    {
+                        x = (cutLevel - a.Y) * (b.X - a.X) / (b.Y - a.Y) + a.X;
+                    }
+
+                    var vertex = new Vector2(x, cutLevel);
+                    context.DrawEllipse(Brushes.GreenYellow, null, new Point(x, cutLevel), 4, 4);
+                    cutVertices[countOfVertices] = vertex;
+                    countOfVertices++;
+                }
+            }
+            
+            if (countOfVertices == 2)
+            {
+                context.DrawLine(_cuttingFormPen, cutVertices[0].ToRoundedPoint(), cutVertices[1].ToRoundedPoint());
+                Vector2[] topPartOfTriangle = new Vector2[4];
+                Vector2[] bottomPartOfTriangle = new Vector2[4];
+                int numberOfVerticesTop = 2;
+                int numberOfVerticesBottom = 2;
+                bottomPartOfTriangle[0] = topPartOfTriangle[0] = cutVertices[0];
+                bottomPartOfTriangle[1] = topPartOfTriangle[1] = cutVertices[1];
+
+                for (int i = 0; i < 3; i++)
+                {
+                    var p = TriangleViewModel[i].P;
+                    if (p.Y <= cutLevel)
+                    {
+                        topPartOfTriangle[numberOfVerticesTop] = p;
+                        numberOfVerticesTop++;
+                    }
+                    else
+                    {
+                        bottomPartOfTriangle[numberOfVerticesBottom] = p;
+                        numberOfVerticesBottom++;
+                    }
+                }
+
+                var midCutPoint = (cutVertices[0] + cutVertices[1]) / 2;
+                var areaTop = GetArea(topPartOfTriangle, numberOfVerticesTop);
+                var textTop = new FormattedText($"{areaTop/TriangleViewModel.Area*100:F2}%", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface, 14, Brushes.Beige, Dpi);
+                context.DrawText(textTop, (midCutPoint + new Vector2(-textTop.Width / 2, -25)).ToRoundedPoint());
+
+
+                if (numberOfVerticesBottom == 3)
+                {
+
+                }
+                var areaBottom = GetArea(bottomPartOfTriangle, numberOfVerticesBottom);
+                var textBottom = new FormattedText($"{areaBottom / TriangleViewModel.Area * 100:F2}%", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface, 14, Brushes.Beige, Dpi);
+                context.DrawText(textBottom, (midCutPoint + new Vector2(-textBottom.Width / 2, 25)).ToRoundedPoint());
+            }
+
+
+            
+        }
+
+        private double GetArea(Vector2[] va, int count)
+        {
+            Vector2[] topSorted = va;
+            if (count > 3)
+            {
+                var topCenter = Vector2.Zero;
+                for (int i = 0; i < count; i++)
+                    topCenter += va[i];
+                topCenter /= count;
+                topSorted = va.OrderBy(p => (p - topCenter).PseudoPhase()).ToArray();
+            }
+            var result = topSorted.GetArea(0, count);
+            return result;
+        }
+
+        private double DivideTriangleHorizontal(Vector2[] tri, double factor)
+        {
+            var sortY = tri.OrderBy(p => p.Y).ToArray();
+
+            double th = sortY[1].Y - sortY[0].Y;
+            double bh = sortY[2].Y - sortY[1].Y;
+            double h = th + bh;
+
+            if (th > h*factor)
+                return sortY[0].Y + Math.Sqrt((th + bh) * th * factor);
+            return sortY[2].Y - Math.Sqrt( (th + bh) * bh*(1 - factor));
         }
 
         protected override int VisualChildrenCount => _children.Count;
