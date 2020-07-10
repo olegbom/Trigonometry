@@ -62,7 +62,7 @@ namespace Trigonometry.Views
                     editableDrawingVisual.Draw();
                 }
 
-                UpdateCuttingForm(_mousePos);
+                UpdateCuttingForm();
             }
         }
 
@@ -172,7 +172,7 @@ namespace Trigonometry.Views
                     }
                 }
 
-                UpdateCuttingForm(pt);
+                UpdateCuttingForm();
 
 
             };
@@ -205,6 +205,13 @@ namespace Trigonometry.Views
                 }
             };
 
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            CompositionTarget.Rendering += (o, e) =>
+            {
+                _t = sw.ElapsedMilliseconds / 1000.0;
+                UpdateCuttingForm();
+            };
         }
 
 
@@ -225,10 +232,13 @@ namespace Trigonometry.Views
             }
         }
 
-        private Point _mousePos;
-        private void UpdateCuttingForm(Point mousePos)
+
+        private double _t;
+
+        private void UpdateCuttingForm()
         {
-            _mousePos = mousePos;
+            if (TriangleViewModel == null)
+                return;
             using var context = _visualCuttingForm.RenderOpen();
             
             
@@ -238,78 +248,38 @@ namespace Trigonometry.Views
             {
                 points[i] = TriangleViewModel[i].P;
             }
+            Vector2[] rotTri = new Vector2[3];
+            double factor = 0.5  +  Math.Sin(_t)*0.5;
+
             
-            var cutLevel = DivideTriangleHorizontal(points, 1 / 3.0);
+                
+            HorizontalTriangleDivider divider = new HorizontalTriangleDivider(points, factor);
+            
+            
+            
 
-
-           
-            var cutVertices = new Vector2[2];
-            int countOfVertices = 0;
-            for (int i = 0; i < 3; i++)
+            StreamGeometry geometry = new StreamGeometry { FillRule = FillRule.Nonzero };
+            using (var geomContext = geometry.Open())
             {
-                var a = TriangleViewModel[i].P;
-                var b = TriangleViewModel[i + 1].P;
-                if ((a.Y <= cutLevel && b.Y >  cutLevel) ||
-                    (a.Y >  cutLevel && b.Y <= cutLevel))
+                geomContext.BeginFigure(divider.CutPoints.Midpoint().ToPoint(), false, true);
+                for (int i = 1; i < 360; i++)
                 {
-                    //(x - a.X) / (b.X - a.X) = (y - a.Y) / (b.Y - a.Y);
-                    //(x - a.X) * (b.Y - a.Y) = (y - a.Y) * (b.X - a.X);
-                    //выражаем X
-                    //x = (y - a.Y) * (b.X - a.X) / (b.Y - a.Y) + a.X;
-                    var x = a.X;
-                    if (Math.Abs(b.Y - a.Y) > 1e-6)
+                    double phi = i * Math.PI / 180;
+                    var rotMatrix = Matrix3x2.CreateRotation(phi);
+
+                    for (int j = 0; j < 3; j++)
                     {
-                        x = (cutLevel - a.Y) * (b.X - a.X) / (b.Y - a.Y) + a.X;
+                        rotTri[j] = Vector2.Transform(points[j], rotMatrix);
                     }
 
-                    var vertex = new Vector2(x, cutLevel);
-                    context.DrawEllipse(Brushes.GreenYellow, null, new Point(x, cutLevel), 4, 4);
-                    cutVertices[countOfVertices] = vertex;
-                    countOfVertices++;
+                    divider = new HorizontalTriangleDivider(rotTri, factor);
+                    Vector2 point = divider.CutPoints.Midpoint();
+                    rotMatrix = Matrix3x2.CreateRotation(-phi);
+                    point = Vector2.Transform(point, rotMatrix);
+                    geomContext.LineTo(point.ToPoint(), true, false);
                 }
             }
-            
-            if (countOfVertices == 2)
-            {
-                context.DrawLine(_cuttingFormPen, cutVertices[0].ToRoundedPoint(), cutVertices[1].ToRoundedPoint());
-                Vector2[] topPartOfTriangle = new Vector2[4];
-                Vector2[] bottomPartOfTriangle = new Vector2[4];
-                int numberOfVerticesTop = 2;
-                int numberOfVerticesBottom = 2;
-                bottomPartOfTriangle[0] = topPartOfTriangle[0] = cutVertices[0];
-                bottomPartOfTriangle[1] = topPartOfTriangle[1] = cutVertices[1];
-
-                for (int i = 0; i < 3; i++)
-                {
-                    var p = TriangleViewModel[i].P;
-                    if (p.Y <= cutLevel)
-                    {
-                        topPartOfTriangle[numberOfVerticesTop] = p;
-                        numberOfVerticesTop++;
-                    }
-                    else
-                    {
-                        bottomPartOfTriangle[numberOfVerticesBottom] = p;
-                        numberOfVerticesBottom++;
-                    }
-                }
-
-                var midCutPoint = (cutVertices[0] + cutVertices[1]) / 2;
-                var areaTop = GetArea(topPartOfTriangle, numberOfVerticesTop);
-                var textTop = new FormattedText($"{areaTop/TriangleViewModel.Area*100:F2}%", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface, 14, Brushes.Beige, Dpi);
-                context.DrawText(textTop, (midCutPoint + new Vector2(-textTop.Width / 2, -25)).ToRoundedPoint());
-
-
-                if (numberOfVerticesBottom == 3)
-                {
-
-                }
-                var areaBottom = GetArea(bottomPartOfTriangle, numberOfVerticesBottom);
-                var textBottom = new FormattedText($"{areaBottom / TriangleViewModel.Area * 100:F2}%", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface, 14, Brushes.Beige, Dpi);
-                context.DrawText(textBottom, (midCutPoint + new Vector2(-textBottom.Width / 2, 25)).ToRoundedPoint());
-            }
-
-
+            context.DrawGeometry(Brushes.Transparent, _cuttingFormPen, geometry);
             
         }
 
@@ -328,32 +298,27 @@ namespace Trigonometry.Views
             return result;
         }
 
-        private double DivideTriangleHorizontal(Vector2[] tri, double factor)
+
+
+
+       
+    
+   
+
+
+
+        public Geometry GetPolygon(Vector2[] vertices)
         {
-            var sortY = tri.OrderBy(p => p.Y).ToArray();
+            var geom = new StreamGeometry { FillRule = FillRule.Nonzero };
+            using (var geomContext = geom.Open())
+            {
+                geomContext.BeginFigure(vertices[0].ToPoint(), true, true);
+                for (int i = 1; i < vertices.Length; i++)
+                    geomContext.LineTo(vertices[i].ToPoint(), true, false);
+            }
 
-            double th = sortY[1].Y - sortY[0].Y;
-            double bh = sortY[2].Y - sortY[1].Y;
-            double h = th + bh;
-
-            if (th > h*factor)
-                return sortY[0].Y + Math.Sqrt((th + bh) * th * factor);
-            return sortY[2].Y - Math.Sqrt( (th + bh) * bh*(1 - factor));
+            return geom;
         }
-
-        private double DivideTriangleVertical(Vector2[] tri, double factor)
-        {
-            var sortY = tri.OrderBy(p => p.X).ToArray();
-
-            double th = sortY[1].X - sortY[0].X;
-            double bh = sortY[2].X - sortY[1].X;
-            double h = th + bh;
-
-            if (th > h * factor)
-                return sortY[0].X + Math.Sqrt((th + bh) * th * factor);
-            return sortY[2].X - Math.Sqrt((th + bh) * bh * (1 - factor));
-        }
-
 
         protected override int VisualChildrenCount => _children.Count;
 

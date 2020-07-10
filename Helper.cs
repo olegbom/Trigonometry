@@ -90,5 +90,26 @@ namespace Trigonometry
             return vertices.GetArea(0, vertices.Length);
         }
 
+        public static Vector2 Midpoint(this Vector2[] vertices)
+        {
+            Vector2 result = Vector2.Zero;
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                result += vertices[i];
+            }
+            result /= vertices.Length;
+            return result;
+        }
+
+
+        public static double LinearApproximateX(Vector2 a, Vector2 b, double y)
+        {
+            return (y - a.Y) * (b.X - a.X) / (b.Y - a.Y) + a.X;
+        }
+        public static double LinearApproximateY(Vector2 a, Vector2 b, double x)
+        {
+            return (x - a.X) * (b.Y - a.Y) / (b.X - a.X) + a.Y;
+        }
+
     }
 }
