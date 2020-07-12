@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.DoubleNumerics;
 using System.Globalization;
 using System.Linq;
+using System.Printing;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
@@ -253,12 +254,23 @@ namespace Trigonometry.Views
 
             
                 
-            HorizontalTriangleDivider divider = new HorizontalTriangleDivider(points, factor);
-            
-            
-            
+            HorizontalTriangleDivider divider = new HorizontalTriangleDivider(points, 1/3.0);
+            context.DrawLine(_cuttingFormPen, divider.CutPoints[0].ToPoint(), divider.CutPoints[1].ToPoint());
 
-            StreamGeometry geometry = new StreamGeometry { FillRule = FillRule.Nonzero };
+            if (divider.BottomPart.Length == 3)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    rotTri[i] = new Vector2(-divider.BottomPart[i].Y, divider.BottomPart[i].X);
+                }
+                divider = new HorizontalTriangleDivider(rotTri, 1 / 2.0);
+                Vector2[] cutVertices = new Vector2[2];
+                for (int i = 0; i < 2; i++)
+                    cutVertices[i] = new Vector2(divider.CutPoints[i].Y, -divider.CutPoints[i].X);
+                context.DrawLine(_cuttingFormPen, cutVertices[0].ToPoint(), cutVertices[1].ToPoint());
+            }
+
+           /* StreamGeometry geometry = new StreamGeometry { FillRule = FillRule.Nonzero };
             using (var geomContext = geometry.Open())
             {
                 geomContext.BeginFigure(divider.CutPoints.Midpoint().ToPoint(), false, true);
@@ -279,7 +291,7 @@ namespace Trigonometry.Views
                     geomContext.LineTo(point.ToPoint(), true, false);
                 }
             }
-            context.DrawGeometry(Brushes.Transparent, _cuttingFormPen, geometry);
+            context.DrawGeometry(Brushes.Transparent, _cuttingFormPen, geometry);*/
             
         }
 
